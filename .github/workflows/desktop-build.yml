@@ -50,7 +50,27 @@ jobs:
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
           KEYCHAIN_PASSWORD=$(openssl rand -base64 32)
 
-          echo "$APPLE_CERTIFICATE" | base64 --decode > "$CERTIFICATE_PATH"
+          # Strip any whitespace/newlines and decode
+          echo "$APPLE_CERTIFICATE" | tr -d '\n\r ' | base64 --decode > "$CERTIFICATE_PATH" 2>/dev/null
+
+          # Validate decoded certificate
+          if ! openssl pkcs12 -in "$CERTIFICATE_PATH" -passin pass:"$APPLE_CERTIFICATE_PASSWORD" -noout 2>/dev/null; then
+            echo "ERROR: Decoded certificate is not a valid PKCS#12 file."
+            echo "Possible causes:"
+            echo "  1. APPLE_CERTIFICATE secret is not proper base64 of a .p12 file"
+            echo "  2. Base64 encoding has incorrect line wrapping"
+            echo "  3. Certificate password (APPLE_CERTIFICATE_PASSWORD) is wrong"
+            echo "  4. Certificate has expired"
+            echo ""
+            echo "To fix: export your .p12 as base64 on macOS:"
+            echo "  base64 -i certificate.p12 -o - | pbcopy"
+            echo "Then paste into GitHub secret APPLE_CERTIFICATE."
+            echo ""
+            echo "File size after decode: $(wc -c < "$CERTIFICATE_PATH") bytes"
+            echo "First 20 bytes (hex):"
+            xxd -l 20 "$CERTIFICATE_PATH"
+            exit 1
+          fi
 
           security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
           security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
