@@ -103,6 +103,7 @@ document.addEventListener('keydown', (e) => {
 const BUNDLED_AGENT_ICON_SLUGS = new Set([
   'aider',
   'amp',
+  'atomcode',
   'claude',
   'cline',
   'codex',
@@ -112,6 +113,7 @@ const BUNDLED_AGENT_ICON_SLUGS = new Set([
   'gemini',
   'goose',
   'kimi',
+  'kimicode',
   'nanoclaw',
   'openai',
   'openclaw',
