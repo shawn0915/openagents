@@ -28,10 +28,9 @@
     "directory": "packages/launcher"
   },
   "devDependencies": {
-    "electron": "^33.0.0",
+    "electron": "^33.4.11",
     "electron-builder": "^25.0.0"
   },
-  "dependencies": {},
   "build": {
     "appId": "com.openagents.launcher",
     "productName": "OpenAgents Launcher",

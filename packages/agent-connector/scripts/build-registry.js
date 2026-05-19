@@ -11,7 +11,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const REGISTRY_DIR = path.resolve(__dirname, '..', '..', '..', 'src', 'openagents', 'registry');
+const REGISTRY_DIR = path.resolve(__dirname, '..', '..', '..', 'sdk', 'src', 'openagents', 'registry');
 const OUTPUT_FILE = path.resolve(__dirname, '..', 'registry.json');
 
 function parseSimpleYaml(text) {

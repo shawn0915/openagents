@@ -1,0 +1,47 @@
+name: atomcode
+label: AtomCode
+description: AtomCode agent powered by AtomGit GLM, OpenAI-compatible API.
+homepage: https://atomgit.com
+tags: [coding, atomgit, glm]
+featured: true
+order: 9
+support:
+  install: true
+  workspace: true
+  collaboration: true
+builtin: true
+
+install:
+  binary: atomcode
+  api_only: true
+  macos: "echo 'AtomCode uses direct API mode — no binary install needed'"
+  linux: "echo 'AtomCode uses direct API mode — no binary install needed'"
+  windows: "echo 'AtomCode uses direct API mode — no binary install needed'"
+
+adapter:
+  module: openagents.adapters.atomcode
+  class: AtomCodeAdapter
+
+launch:
+  args: []
+
+env_config:
+  - name: ATOMCODE_API_KEY
+    description: AtomGit/AtomCode API key
+    required: true
+    password: true
+  - name: ATOMCODE_BASE_URL
+    description: AtomCode API base URL (OpenAI-compatible endpoint)
+    required: false
+    default: https://api.atomsites.cn/v1
+    placeholder: https://api.atomsites.cn/v1
+  - name: ATOMCODE_MODEL
+    description: AtomCode model name
+    required: false
+    default: glm-5.1
+    placeholder: glm-5.1
+
+check_ready:
+  env_vars: [ATOMCODE_API_KEY]
+  saved_env_key: ATOMCODE_API_KEY
+  not_ready_message: "No API key — press e to configure"

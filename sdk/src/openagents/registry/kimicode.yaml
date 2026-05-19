@@ -1,0 +1,47 @@
+name: kimicode
+label: Kimi Code
+description: Kimi Code agent powered by Moonshot AI, OpenAI-compatible API.
+homepage: https://kimi.moonshot.cn
+tags: [coding, moonshot, kimi-code]
+featured: true
+order: 10
+support:
+  install: true
+  workspace: true
+  collaboration: true
+builtin: true
+
+install:
+  binary: kimicode
+  api_only: true
+  macos: "echo 'Kimi Code uses direct API mode — no binary install needed'"
+  linux: "echo 'Kimi Code uses direct API mode — no binary install needed'"
+  windows: "echo 'Kimi Code uses direct API mode — no binary install needed'"
+
+adapter:
+  module: openagents.adapters.kimicode
+  class: KimiCodeAdapter
+
+launch:
+  args: []
+
+env_config:
+  - name: KIMICODE_API_KEY
+    description: Moonshot/Kimi Code API key (also accepts MOONSHOT_API_KEY env var)
+    required: true
+    password: true
+  - name: KIMICODE_BASE_URL
+    description: Kimi Code API base URL (OpenAI-compatible endpoint)
+    required: false
+    default: https://api.moonshot.cn/v1
+    placeholder: https://api.moonshot.cn/v1
+  - name: KIMICODE_MODEL
+    description: Kimi Code model name
+    required: false
+    default: kimi-k2
+    placeholder: kimi-k2
+
+check_ready:
+  env_vars: [KIMICODE_API_KEY, MOONSHOT_API_KEY]
+  saved_env_key: KIMICODE_API_KEY
+  not_ready_message: "No API key — press e to configure"
