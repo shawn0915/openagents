@@ -32,6 +32,7 @@ contextBridge.exposeInMainWorld('api', {
   uninstallAgentTypeStreaming: (type) => ipcRenderer.invoke('agents:uninstall-type-streaming', type),
   checkAgentType: (type) => ipcRenderer.invoke('agents:check-type', type),
   getCatalog: () => ipcRenderer.invoke('agents:catalog'),
+  getCatalogWithHealth: () => ipcRenderer.invoke('agents:catalog-with-health'),
 
   // Agent configuration
   getEnvFields: (type) => ipcRenderer.invoke('agents:env-fields', type),

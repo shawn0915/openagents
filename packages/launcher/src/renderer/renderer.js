@@ -1,6 +1,7 @@
 // ---- Tab navigation ----
 
 function switchTab(tabName) {
+  debugLog('switchTab:', tabName);
   document.querySelectorAll('.nav-item').forEach((el) => {
     el.classList.toggle('active', el.dataset.tab === tabName);
   });
@@ -980,6 +981,7 @@ async function removeAgent(name) {
 // ---- Install tab ----
 
 async function refreshInstallStatus() {
+  debugLog('refreshInstallStatus: start');
 
   // Catalog
   refreshCatalog();
@@ -987,17 +989,13 @@ async function refreshInstallStatus() {
 
 async function refreshCatalog() {
   const container = document.getElementById('catalog-table-container');
+  debugLog('refreshCatalog: fetching catalog with health data...');
 
   try {
-    const catalog = await window.api.getCatalog();
-    const healthByName = {};
-    await Promise.all(catalog.map(async (c) => {
-      try {
-        healthByName[c.name] = await window.api.healthCheck(c.name);
-      } catch {
-        healthByName[c.name] = null;
-      }
-    }));
+    const t0 = performance.now();
+    const catalog = await window.api.getCatalogWithHealth();
+    const dt = (performance.now() - t0).toFixed(0);
+    debugLog('refreshCatalog: received', catalog?.length, 'entries in', dt, 'ms');
 
     if (!catalog || catalog.length === 0) {
       container.innerHTML = '<p class="hint">No agent runtimes available. Install the SDK first.</p>';
@@ -1005,8 +1003,9 @@ async function refreshCatalog() {
     }
 
     const rows = catalog.map((c) => {
-      const health = healthByName[c.name] || {};
+      const health = c._health || {};
       const readiness = formatHealthLabel(health);
+      if (health?.version) debugLog('refreshCatalog:', c.name, 'version:', health.version);
       return `
       <div class="catalog-row ${c.installed ? 'installed' : ''}" data-name="${esc(c.name)}">
         <div class="catalog-info">
@@ -1461,8 +1460,10 @@ document.getElementById('link-docs').addEventListener('click', (e) => {
   try {
     const startOnBoot = await window.api.getSetting('startOnBoot');
     const minimizeToTray = await window.api.getSetting('minimizeToTray');
+    const logLevel = await window.api.getSetting('logLevel');
     if (startOnBoot !== undefined) document.getElementById('setting-start-on-boot').checked = !!startOnBoot;
     if (minimizeToTray !== undefined) document.getElementById('setting-minimize-to-tray').checked = !!minimizeToTray;
+    if (logLevel) document.getElementById('setting-log-level').value = logLevel;
   } catch {}
 })();
 
@@ -1472,8 +1473,19 @@ document.getElementById('setting-start-on-boot').addEventListener('change', (e) 
 document.getElementById('setting-minimize-to-tray').addEventListener('change', (e) => {
   window.api.setSetting('minimizeToTray', e.target.checked);
 });
+document.getElementById('setting-log-level').addEventListener('change', (e) => {
+  window.api.setSetting('logLevel', e.target.value);
+});
 
 // ---- Utilities ----
+
+/** Log a debug message if log level is set to 'debug' */
+function debugLog(...args) {
+  const select = document.getElementById('setting-log-level');
+  if (select && select.value === 'debug') {
+    console.debug('[DEBUG]', ...args);
+  }
+}
 
 function esc(str) {
   if (str == null) return '';

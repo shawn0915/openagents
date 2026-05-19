@@ -209,6 +209,26 @@ class AgentManager {
     return catalog;
   }
 
+  /**
+   * Returns catalog entries with health data pre-computed.
+   * Replaces 1 catalog IPC + N health-check IPC calls with a single round-trip.
+   */
+  async getCatalogWithHealth() {
+    const catalog = await this.getCatalog();
+    const healthByName = {};
+    for (const c of catalog) {
+      try {
+        const t0 = Date.now();
+        healthByName[c.name] = this.healthCheck(c.name);
+        const dt = Date.now() - t0;
+        if (dt > 30) console.debug('[DEBUG] getCatalogWithHealth: healthCheck for', c.name, 'took', dt, 'ms');
+      } catch {
+        healthByName[c.name] = null;
+      }
+    }
+    return catalog.map((c) => ({ ...c, _health: healthByName[c.name] || null }));
+  }
+
   async getEnvFields(agentType) {
     return this._connector.getEnvFields(agentType);
   }

@@ -544,6 +544,12 @@ function setupIPC() {
     return agentManager.getCatalog();
   });
 
+  // Single round-trip: catalog + health data (replaces N+1 IPC calls)
+  ipcMain.handle('agents:catalog-with-health', async () => {
+    try { agentManager._connector.registry._catalog = null; } catch {}
+    return agentManager.getCatalogWithHealth();
+  });
+
   // Agent configuration
   ipcMain.handle('agents:env-fields', (_e, agentType) => agentManager.getEnvFields(agentType));
   ipcMain.handle('agents:get-env', (_e, agentType) => agentManager.getAgentEnv(agentType));
