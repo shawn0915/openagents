@@ -70,4 +70,5 @@ contextBridge.exposeInMainWorld('api', {
 
   // Debug
   debugEnv: () => ipcRenderer.invoke('debug:env'),
+  writeDebugLog: (msg) => ipcRenderer.invoke('debug:write-log', msg),
 });

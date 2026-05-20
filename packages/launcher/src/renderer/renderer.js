@@ -1480,9 +1480,15 @@ document.getElementById('setting-log-level').addEventListener('change', (e) => {
 // ---- Utilities ----
 
 /** Log a debug message if log level is set to 'debug' */
-function debugLog(...args) {
+async function debugLog(...args) {
   const select = document.getElementById('setting-log-level');
   if (select && select.value === 'debug') {
+    const msg = args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ');
+    try {
+      if (window.api && window.api.writeDebugLog) {
+        await window.api.writeDebugLog(msg);
+      }
+    } catch {}
     console.debug('[DEBUG]', ...args);
   }
 }

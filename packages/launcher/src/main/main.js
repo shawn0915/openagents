@@ -675,6 +675,18 @@ function setupIPC() {
       platform: process.platform,
     };
   });
+
+  // Debug: write to ~/.openagents/debug.log
+  ipcMain.handle('debug:write-log', (_e, msg) => {
+    try {
+      const os = require('os');
+      const p = require('path');
+      const f = require('fs');
+      const logFile = p.join(os.homedir(), '.openagents', 'debug.log');
+      f.mkdirSync(p.dirname(logFile), { recursive: true });
+      f.appendFileSync(logFile, `${new Date().toISOString()} ${msg}\n`);
+    } catch {}
+  });
 }
 
 // ---- Single instance lock ----
