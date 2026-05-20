@@ -215,18 +215,23 @@ class AgentManager {
    */
   async getCatalogWithHealth() {
     const catalog = await this.getCatalog();
-    const healthByName = {};
-    for (const c of catalog) {
+    const t0 = Date.now();
+    const healthResults = await Promise.all(catalog.map(async (c) => {
       try {
-        const t0 = Date.now();
-        healthByName[c.name] = this.healthCheck(c.name);
-        const dt = Date.now() - t0;
+        const t1 = Date.now();
+        const h = await this.healthCheck(c.name);
+        const dt = Date.now() - t1;
         if (dt > 30) console.debug('[DEBUG] getCatalogWithHealth: healthCheck for', c.name, 'took', dt, 'ms');
+        return { name: c.name, health: h };
       } catch {
-        healthByName[c.name] = null;
+        return { name: c.name, health: null };
       }
-    }
-    return catalog.map((c) => ({ ...c, _health: healthByName[c.name] || null }));
+    }));
+    const dt = Date.now() - t0;
+    console.debug('[DEBUG] getCatalogWithHealth: total', catalog.length, 'agents in', dt, 'ms');
+    const healthMap = {};
+    for (const r of healthResults) healthMap[r.name] = r.health;
+    return catalog.map((c) => ({ ...c, _health: healthMap[c.name] || null }));
   }
 
   async getEnvFields(agentType) {
